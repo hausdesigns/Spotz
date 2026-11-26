@@ -223,6 +223,39 @@ footer {
 }
 
 
+/*account section*/
+
+.account-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    margin: 0 auto;
+}
+
+#signupForm,
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 380px;
+}
+
+#signupForm input,
+#loginForm input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#signupForm button,
+#loginForm button {
+    width: 100%;
+}
+
 /* CREATE A SPOT */
 
 .create-spot {
