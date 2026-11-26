@@ -76,6 +76,7 @@ nav a:hover {
 
 .location-search {
     display: flex;
+    justify-content: center;
     align-items: center;
     border: 1px solid #dddddd;
     border-radius: 40px;
@@ -83,12 +84,12 @@ nav a:hover {
     background-color: white;
     width: 380px;
     height: 60px;
+    margin: 0 auto;
 }
 
 .location-search input {
     border: none;
     outline: none;
-    justify-content: center;
     background: transparent;
     padding: 10px;
     width: 100%;
