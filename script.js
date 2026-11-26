@@ -287,55 +287,172 @@ document.addEventListener("DOMContentLoaded", function () {
     const spotMarkers = L.layerGroup().addTo(map);
 
 
-    // =====================================
-    // LOAD EXISTING SPOTS ON THE MAP
-    // =====================================
+  
+// =====================================
+// LOAD EXISTING SPOTS ON THE MAP
+// =====================================
 
-    async function loadSpotz() {
+async function loadSpotz() {
 
-        const { data, error } = await supabaseClient
-            .from("spots")
-            .select("*")
-            .order("created_at", { ascending: false });
+    const { data, error } = await supabaseClient
+        .from("spots")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-        if (error) {
-            console.error("Could not load spots:", error.message);
+    if (error) {
+        console.error("Could not load spots:", error.message);
+        return;
+    }
+
+    spotMarkers.clearLayers();
+
+    data.forEach(function (spot) {
+
+        if (spot.latitude == null || spot.longitude == null) {
             return;
         }
 
-        spotMarkers.clearLayers();
+        const popup = document.createElement("div");
+        popup.style.minWidth = "200px";
 
-        data.forEach(function (spot) {
+        // SPOT TITLE
+        const title = document.createElement("h3");
+        title.textContent = spot.title;
+        popup.appendChild(title);
 
-            if (spot.latitude == null || spot.longitude == null) {
+        // SPOT DESCRIPTION
+        const description = document.createElement("p");
+        description.textContent = spot.description || "";
+        popup.appendChild(description);
+
+        // SPOT PHOTO
+        if (spot.photo_url) {
+            const photo = document.createElement("img");
+            photo.src = spot.photo_url;
+            photo.alt = spot.title;
+            photo.style.width = "180px";
+            photo.style.borderRadius = "8px";
+            popup.appendChild(photo);
+        }
+
+        // COMMENTS HEADING
+        const commentsHeading = document.createElement("h4");
+        commentsHeading.textContent = "Comments";
+        popup.appendChild(commentsHeading);
+
+        // COMMENTS DISPLAY
+        const commentsContainer = document.createElement("div");
+        popup.appendChild(commentsContainer);
+
+        // COMMENT FORM
+        const commentForm = document.createElement("form");
+
+        const commentInput = document.createElement("textarea");
+        commentInput.placeholder = "Write a comment...";
+        commentInput.required = true;
+        commentInput.maxLength = 1000;
+        commentInput.style.width = "100%";
+
+        const commentButton = document.createElement("button");
+        commentButton.type = "submit";
+        commentButton.textContent = "Post Comment";
+
+        commentForm.appendChild(commentInput);
+        commentForm.appendChild(commentButton);
+        popup.appendChild(commentForm);
+
+        // LOAD COMMENTS
+        async function loadComments() {
+
+            commentsContainer.textContent = "Loading comments...";
+
+            const { data: comments, error } = await supabaseClient
+                .from("comments")
+                .select("*")
+                .eq("spot_id", spot.id)
+                .order("created_at", { ascending: true });
+
+            if (error) {
+                console.error("Could not load comments:", error.message);
+                commentsContainer.textContent = "Could not load comments.";
                 return;
             }
 
-            const popup = document.createElement("div");
+            commentsContainer.replaceChildren();
 
-            const title = document.createElement("strong");
-            title.textContent = spot.title;
-
-            const description = document.createElement("p");
-            description.textContent = spot.description || "";
-
-            popup.appendChild(title);
-            popup.appendChild(description);
-
-            if (spot.photo_url) {
-                const photo = document.createElement("img");
-                photo.src = spot.photo_url;
-                photo.alt = spot.title;
-                photo.style.width = "180px";
-                photo.style.borderRadius = "8px";
-                popup.appendChild(photo);
+            if (!comments || comments.length === 0) {
+                commentsContainer.textContent = "No comments yet. Be the first!";
+                return;
             }
 
-            L.marker([spot.latitude, spot.longitude])
-                .bindPopup(popup)
-                .addTo(spotMarkers);
+            comments.forEach(function (comment) {
+
+                const commentItem = document.createElement("p");
+                commentItem.textContent = comment.content;
+
+                const commentDate = document.createElement("small");
+                commentDate.textContent =
+                    new Date(comment.created_at).toLocaleDateString();
+
+                commentItem.appendChild(document.createElement("br"));
+                commentItem.appendChild(commentDate);
+
+                commentsContainer.appendChild(commentItem);
+            });
+        }
+
+        // SUBMIT COMMENT
+        commentForm.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            const commentText = commentInput.value.trim();
+
+            if (!commentText) return;
+
+            const { data: userData, error: userError } =
+                await supabaseClient.auth.getUser();
+
+            if (userError || !userData.user) {
+                alert("Please log in to comment.");
+                return;
+            }
+
+            commentButton.disabled = true;
+            commentButton.textContent = "Posting...";
+
+            const { error: commentError } = await supabaseClient
+                .from("comments")
+                .insert({
+                    spot_id: spot.id,
+                    user_id: userData.user.id,
+                    content: commentText
+                });
+
+            if (commentError) {
+                console.error("Comment error:", commentError.message);
+                alert("Could not post comment: " + commentError.message);
+            } else {
+                commentInput.value = "";
+                await loadComments();
+            }
+
+            commentButton.disabled = false;
+            commentButton.textContent = "Post Comment";
         });
-    }
+
+        // CREATE MAP MARKER
+        const spotMarker = L.marker([
+            spot.latitude,
+            spot.longitude
+        ])
+            .bindPopup(popup)
+            .on("popupopen", loadComments)
+            .addTo(spotMarkers);
+
+    });
+}
+
 
 
     // =====================================
