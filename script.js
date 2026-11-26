@@ -335,6 +335,117 @@ async function loadSpotz() {
             popup.appendChild(photo);
         }
 
+
+        // =====================================
+        // LIKE BUTTON
+        // =====================================
+
+        const likeSection = document.createElement("div");
+
+        const likeButton = document.createElement("button");
+        likeButton.type = "button";
+
+        const likeCount = document.createElement("span");
+        likeCount.style.marginLeft = "8px";
+
+        likeSection.appendChild(likeButton);
+        likeSection.appendChild(likeCount);
+
+        popup.appendChild(likeSection);
+
+        // LOAD LIKE INFORMATION
+        async function loadLikes() {
+
+            const { data: likes, error } = await supabaseClient
+                .from("likes")
+                .select("user_id")
+                .eq("spot_id", spot.id);
+
+            if (error) {
+                console.error("Could not load likes:", error.message);
+                likeCount.textContent = " Likes unavailable";
+                return;
+            }
+
+            const { data: userData } =
+                await supabaseClient.auth.getUser();
+
+            const currentUser = userData.user;
+
+            const alreadyLiked = currentUser &&
+                likes.some(like => like.user_id === currentUser.id);
+
+            likeButton.textContent = alreadyLiked ? "❤️ Liked" : "🤍 Like";
+            likeCount.textContent = likes.length + 
+                (likes.length === 1 ? " like" : " likes");
+        }
+
+        // LIKE / UNLIKE
+        likeButton.addEventListener("click", async function () {
+
+            const { data: userData } =
+                await supabaseClient.auth.getUser();
+
+            const currentUser = userData.user;
+
+            if (!currentUser) {
+                alert("Please log in to like a Spot.");
+                return;
+            }
+
+            likeButton.disabled = true;
+
+            const { data: existingLike, error: findError } =
+                await supabaseClient
+                    .from("likes")
+                    .select("id")
+                    .eq("spot_id", spot.id)
+                    .eq("user_id", currentUser.id)
+                    .maybeSingle();
+
+            if (findError) {
+                console.error("Could not check like:", findError.message);
+                alert("Could not update your like.");
+                likeButton.disabled = false;
+                return;
+            }
+
+            if (existingLike) {
+
+                const { error } = await supabaseClient
+                    .from("likes")
+                    .delete()
+                    .eq("id", existingLike.id);
+
+                if (error) {
+                    console.error("Could not remove like:", error.message);
+                    alert("Could not remove your like.");
+                }
+
+            } else {
+
+                const { error } = await supabaseClient
+                    .from("likes")
+                    .insert({
+                        spot_id: spot.id,
+                        user_id: currentUser.id
+                    });
+
+                if (error) {
+                    console.error("Could not add like:", error.message);
+                    alert("Could not add your like.");
+                }
+            }
+
+            await loadLikes();
+
+            likeButton.disabled = false;
+        });
+
+        // INITIAL LIKE COUNT
+        loadLikes();
+
+
         // COMMENTS HEADING
         const commentsHeading = document.createElement("h4");
         commentsHeading.textContent = "Comments";
