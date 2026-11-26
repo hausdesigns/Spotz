@@ -88,6 +88,7 @@ nav a:hover {
 .location-search input {
     border: none;
     outline: none;
+    justify-content: center;
     background: transparent;
     padding: 10px;
     width: 100%;
