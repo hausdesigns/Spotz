@@ -1073,6 +1073,11 @@ async function loadModalComments() {
 
         const username = document.createElement("strong");
         username.textContent = profile?.username || "Spotz Member";
+        username.style.cursor = "pointer";
+
+username.addEventListener("click", function() {
+    openPublicProfile(comment.user_id);
+});
 
         const commentText = document.createElement("p");
         commentText.textContent = comment.content;
@@ -1277,4 +1282,107 @@ async function loadModalLikes() {
     const likeButton = document.getElementById("modalLikeButton");
 
     likeButton.textContent = userLiked ? "❤️ Liked" : "🤍 Like";
+}
+
+
+// OPEN ANOTHER USER'S PUBLIC PROFILE
+async function openPublicProfile(userId) {
+
+    const modal = document.getElementById("publicProfileModal");
+
+    modal.hidden = false;
+
+    document.getElementById("publicProfileUsername").textContent =
+        "Loading profile...";
+
+    document.getElementById("publicProfileBio").textContent = "";
+
+    const avatar = document.getElementById("publicProfileAvatar");
+    avatar.src = "";
+
+    const spotsContainer = document.getElementById("publicProfileSpots");
+    spotsContainer.textContent = "Loading spots...";
+
+    // GET USER PROFILE
+    const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+    if (profileError || !profile) {
+        console.error("Could not load public profile:", profileError);
+        document.getElementById("publicProfileUsername").textContent =
+            "Profile not found";
+        spotsContainer.textContent = "Could not load this profile.";
+        return;
+    }
+
+    // DISPLAY PROFILE INFORMATION
+    document.getElementById("publicProfileUsername").textContent =
+        profile.username || "Spotz Member";
+
+    document.getElementById("publicProfileBio").textContent =
+        profile.bio || "No bio added yet.";
+
+    if (profile.avatar_url) {
+        avatar.src = profile.avatar_url;
+    }
+
+    // GET THIS USER'S SPOTS
+    const { data: spots, error: spotsError } = await supabaseClient
+        .from("spots")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+    if (spotsError) {
+        console.error("Could not load public spots:", spotsError.message);
+        spotsContainer.textContent = "Could not load spots.";
+        return;
+    }
+
+    spotsContainer.replaceChildren();
+
+    if (spots.length === 0) {
+        spotsContainer.textContent = "No shared spots yet.";
+        return;
+    }
+
+    // DISPLAY EACH SPOT
+    spots.forEach(function(spot) {
+
+        const spotCard = document.createElement("div");
+        spotCard.className = "profile-spot-card";
+        spotCard.style.cursor = "pointer";
+
+        spotCard.addEventListener("click", function() {
+            modal.hidden = true;
+            openSpotPopup(spot);
+        });
+
+        if (spot.photo_url) {
+            const photo = document.createElement("img");
+            photo.src = spot.photo_url;
+            photo.alt = spot.title || "Spot photo";
+            photo.style.width = "100%";
+            photo.style.maxWidth = "300px";
+            photo.style.borderRadius = "10px";
+            spotCard.appendChild(photo);
+        }
+
+        const title = document.createElement("h4");
+        title.textContent = spot.title || "Untitled Spot";
+        spotCard.appendChild(title);
+
+        const description = document.createElement("p");
+        description.textContent = spot.description || "";
+        spotCard.appendChild(description);
+
+        const location = document.createElement("p");
+        location.textContent = "📍 " + (spot.location_name || "");
+        spotCard.appendChild(location);
+
+        spotsContainer.appendChild(spotCard);
+    });
 }
