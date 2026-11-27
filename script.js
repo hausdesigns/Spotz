@@ -1390,3 +1390,35 @@ async function openPublicProfile(userId) {
         spotsContainer.appendChild(spotCard);
     });
 }
+
+// SET UP PUBLIC PROFILE POPUP
+function setupPublicProfileModal() {
+
+    const modal = document.getElementById("publicProfileModal");
+    const closeButton = document.getElementById("closePublicProfile");
+
+    if (!modal || !closeButton) {
+        console.error("Public profile popup elements not found.");
+        return;
+    }
+
+    // CLOSE BUTTON
+    closeButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        modal.hidden = true;
+    });
+
+    // CLICK OUTSIDE TO CLOSE
+    modal.addEventListener("click", function(event) {
+        if (event.target === modal) {
+            modal.hidden = true;
+        }
+    });
+}
+
+// WAIT UNTIL HTML IS LOADED
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupPublicProfileModal);
+} else {
+    setupPublicProfileModal();
+}
