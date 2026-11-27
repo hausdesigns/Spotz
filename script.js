@@ -1018,14 +1018,99 @@ activeModalSpot = spot;
     loadModalComments();
 }
 
+// LOAD COMMENTS IN SPOT POPUP
 async function loadModalComments() {
-    // Your existing comment-loading code stays here.
+
+    if (!activeModalSpot) return;
+
+    const spotId = activeModalSpot.id;
+
+    const commentsList = document.getElementById("modalCommentsList");
+
+    commentsList.textContent = "Loading comments...";
+
+    console.log("Loading comments for Spot:", spotId);
+
+    const { data: comments, error } = await supabaseClient
+        .from("comments")
+        .select("*")
+        .eq("spot_id", spotId)
+        .order("created_at", { ascending: true });
+
+    console.log("Comments returned from Supabase:", comments);
+
+    if (error) {
+        console.error("Could not load popup comments:", error.message);
+        commentsList.textContent = "Could not load comments.";
+        return;
+    }
+
+    commentsList.replaceChildren();
+
+    if (comments.length === 0) {
+        commentsList.textContent = "No comments yet. Be the first!";
+        return;
+    }
+
+    comments.forEach(function(comment) {
+
+        const commentItem = document.createElement("div");
+        commentItem.className = "modal-comment-item";
+
+        const commentText = document.createElement("p");
+        commentText.textContent = comment.content;
+
+        commentItem.appendChild(commentText);
+        commentsList.appendChild(commentItem);
+
+    });
 }
 
-// PASTE THE NEW COMMENT FUNCTION HERE
+
+// POST COMMENT FROM SPOT POPUP
 async function handleModalComment(event) {
-    // New comment submission code goes here.
+
+    event.preventDefault();
+
+    if (!activeModalSpot) return;
+
+    const { data: userData } = await supabaseClient.auth.getUser();
+
+    if (!userData.user) {
+        document.getElementById("modalCommentMessage").textContent =
+            "Please log in to comment.";
+        return;
+    }
+
+    const commentInput = document.getElementById("modalCommentInput");
+    const commentMessage = document.getElementById("modalCommentMessage");
+
+    const content = commentInput.value.trim();
+
+    if (!content) return;
+
+    commentMessage.textContent = "Posting comment...";
+
+    const { error } = await supabaseClient
+        .from("comments")
+        .insert({
+            spot_id: activeModalSpot.id,
+            user_id: userData.user.id,
+            content: content
+        });
+
+    if (error) {
+        console.error("Could not post comment:", error.message);
+        commentMessage.textContent = "Could not post comment. Please try again.";
+        return;
+    }
+
+    commentInput.value = "";
+    commentMessage.textContent = "Comment posted!";
+
+    await loadModalComments();
 }
+
 
 // SET UP SPOT POPUP CLOSE BUTTON
 function setupSpotModal() {
@@ -1133,54 +1218,7 @@ async function handleModalLike() {
 
 // LOAD POPUP LIKES
 async function loadModalLikes() {
-
-    // LOAD COMMENTS IN SPOT POPUP
-async function loadModalComments() {
-
-    if (!activeModalSpot) return;
-
-    const spotId = activeModalSpot.id;
-
-    const commentsList = document.getElementById("modalCommentsList");
-
-    commentsList.textContent = "Loading comments...";
-
-    console.log("Loading comments for Spot:", spotId);
-
-    const { data: comments, error } = await supabaseClient
-        .from("comments")
-        .select("*")
-        .eq("spot_id", spotId)
-        .order("created_at", { ascending: true });
-
-     console.log("Comments returned from Supabase:", comments);   
-    if (error) {
-        console.error("Could not load popup comments:", error.message);
-        commentsList.textContent = "Could not load comments.";
-        return;
-    }
-
-    commentsList.replaceChildren();
-
-    if (comments.length === 0) {
-        commentsList.textContent = "No comments yet. Be the first!";
-        return;
-    }
-
-    comments.forEach(function(comment) {
-
-        const commentItem = document.createElement("div");
-        commentItem.className = "modal-comment-item";
-
-        const commentText = document.createElement("p");
-        commentText.textContent = comment.content;
-
-        commentItem.appendChild(commentText);
-        commentsList.appendChild(commentItem);
-
-    });
-}
-
+   
     if (!activeModalSpot) return;
 
     const spotId = activeModalSpot.id;
