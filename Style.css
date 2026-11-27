@@ -547,7 +547,7 @@ footer {
 }
 
 .spot-modal[hidden] {
-    display: none;
+    display: none !important;
 }
 
 .spot-modal-content {

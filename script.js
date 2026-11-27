@@ -1012,19 +1012,17 @@ function openSpotPopup(spot) {
 }
 
 // CLOSE SPOT POPUP
-document.getElementById("closeSpotModal")
-    .addEventListener("click", function() {
+const closeSpotModal = document.getElementById("closeSpotModal");
+const spotModal = document.getElementById("spotModal");
 
-        document.getElementById("spotModal").hidden = true;
+closeSpotModal.addEventListener("click", function(event) {
+    event.preventDefault();
+    spotModal.hidden = true;
+});
 
-    });
-
-// CLOSE POPUP WHEN CLICKING OUTSIDE
-document.getElementById("spotModal")
-    .addEventListener("click", function(event) {
-
-        if (event.target.id === "spotModal") {
-            this.hidden = true;
-        }
-
-    });
+// CLOSE WHEN CLICKING OUTSIDE THE POPUP
+spotModal.addEventListener("click", function(event) {
+    if (event.target === spotModal) {
+        spotModal.hidden = true;
+    }
+});
