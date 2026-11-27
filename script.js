@@ -755,6 +755,7 @@ async function loadProfile() {
     }
 }
 
+
 // SAVE USER PROFILE
 document.getElementById("profileForm").addEventListener(
     "submit",
