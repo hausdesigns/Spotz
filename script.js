@@ -807,6 +807,11 @@ async function loadProfile() {
 
         const spotCard = document.createElement("div");
         spotCard.className = "profile-spot-card";
+        spotCard.style.cursor = "pointer";
+
+spotCard.addEventListener("click", function() {
+    openSpotPopup(spot);
+});
 
         if (spot.photo_url) {
             const photo = document.createElement("img");
@@ -973,3 +978,53 @@ const { error } = await supabaseClient
 
 // LOAD PROFILE WHEN PAGE STARTS
 loadProfile();
+
+// OPEN INDIVIDUAL SPOT POPUP
+function openSpotPopup(spot) {
+
+    const popup = document.getElementById("spotModal");
+
+    // LOAD SPOT PHOTO
+    const photo = document.getElementById("modalSpotPhoto");
+
+    if (spot.photo_url) {
+        photo.src = spot.photo_url;
+        photo.style.display = "block";
+    } else {
+        photo.style.display = "none";
+    }
+
+    // LOAD SPOT INFORMATION
+    document.getElementById("modalSpotTitle").textContent =
+        spot.title || "Untitled Spot";
+
+    document.getElementById("modalSpotLocation").textContent =
+        "📍 " + (spot.location_name || "");
+
+    document.getElementById("modalSpotCategory").textContent =
+        spot.category || "";
+
+    document.getElementById("modalSpotDescription").textContent =
+        spot.description || "";
+
+    // SHOW POPUP
+    popup.hidden = false;
+}
+
+// CLOSE SPOT POPUP
+document.getElementById("closeSpotModal")
+    .addEventListener("click", function() {
+
+        document.getElementById("spotModal").hidden = true;
+
+    });
+
+// CLOSE POPUP WHEN CLICKING OUTSIDE
+document.getElementById("spotModal")
+    .addEventListener("click", function(event) {
+
+        if (event.target.id === "spotModal") {
+            this.hidden = true;
+        }
+
+    });

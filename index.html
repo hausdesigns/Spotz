@@ -364,6 +364,78 @@
 <script src="script.js"></script>
 
 
+<!-- SPOT DETAILS POPUP -->
+<div id="spotModal" class="spot-modal" hidden>
+
+    <div class="spot-modal-content">
+
+        <!-- CLOSE BUTTON -->
+        <button
+            type="button"
+            id="closeSpotModal"
+            class="close-spot-modal"
+            aria-label="Close popup"
+        >
+            &times;
+        </button>
+
+        <!-- SPOT PHOTO -->
+        <img id="modalSpotPhoto" src="" alt="Spot photo">
+
+        <!-- SPOT INFORMATION -->
+        <div class="spot-modal-info">
+
+            <h2 id="modalSpotTitle"></h2>
+
+            <p id="modalSpotLocation"></p>
+
+            <p id="modalSpotCategory"></p>
+
+            <p id="modalSpotDescription"></p>
+
+            <!-- LIKES -->
+            <div class="modal-likes">
+                <button type="button" id="modalLikeButton">
+                    🤍 Like
+                </button>
+
+                <span id="modalLikeCount">0 likes</span>
+            </div>
+
+            <!-- COMMENTS -->
+            <div class="modal-comments">
+
+                <h3>Comments</h3>
+
+                <div id="modalCommentsList">
+                    Loading comments...
+                </div>
+
+                <form id="modalCommentForm">
+
+                    <textarea
+                        id="modalCommentInput"
+                        placeholder="Write a comment..."
+                        maxlength="1000"
+                        required
+                    ></textarea>
+
+                    <button type="submit" id="modalCommentButton">
+                        Post Comment
+                    </button>
+
+                </form>
+
+                <p id="modalCommentMessage"></p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 </body>
 </html>
