@@ -979,10 +979,15 @@ const { error } = await supabaseClient
 // LOAD PROFILE WHEN PAGE STARTS
 loadProfile();
 
+// CURRENT SPOT OPEN IN THE POPUP
+let activeModalSpot = null;
+
 // OPEN INDIVIDUAL SPOT POPUP
 function openSpotPopup(spot) {
 
     const popup = document.getElementById("spotModal");
+
+activeModalSpot = spot;
 
     // LOAD SPOT PHOTO
     const photo = document.getElementById("modalSpotPhoto");
@@ -1009,6 +1014,7 @@ function openSpotPopup(spot) {
 
     // SHOW POPUP
     popup.hidden = false;
+    loadModalLikes();
 }
 
 // SET UP SPOT POPUP CLOSE BUTTON
@@ -1016,6 +1022,10 @@ function setupSpotModal() {
 
     const closeSpotModal = document.getElementById("closeSpotModal");
     const spotModal = document.getElementById("spotModal");
+    // POPUP LIKE BUTTON
+const modalLikeButton = document.getElementById("modalLikeButton");
+
+modalLikeButton.addEventListener("click", handleModalLike);
 
     if (!closeSpotModal || !spotModal) {
         console.error("Spot popup HTML elements not found.");
@@ -1049,3 +1059,100 @@ spotModal.addEventListener("click", function(event) {
         spotModal.hidden = true;
     }
 });
+
+// POPUP LIKE BUTTON
+async function handleModalLike() {
+
+    if (!activeModalSpot) return;
+
+    const { data: userData } = await supabaseClient.auth.getUser();
+
+    if (!userData.user) {
+        alert("Please log in to like a Spot!");
+        return;
+    }
+
+    const user = userData.user;
+    const spotId = activeModalSpot.id;
+
+    // CHECK IF USER ALREADY LIKED THIS SPOT
+    const { data: existingLike, error: checkError } =
+        await supabaseClient
+            .from("likes")
+            .select("*")
+            .eq("spot_id", spotId)
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+    if (checkError) {
+        console.error("Could not check like:", checkError.message);
+        return;
+    }
+
+    if (existingLike) {
+
+        // REMOVE LIKE
+        const { error } = await supabaseClient
+            .from("likes")
+            .delete()
+            .eq("spot_id", spotId)
+            .eq("user_id", user.id);
+
+        if (error) {
+            console.error("Could not remove like:", error.message);
+            return;
+        }
+
+    } else {
+
+        // ADD LIKE
+        const { error } = await supabaseClient
+            .from("likes")
+            .insert({
+                spot_id: spotId,
+                user_id: user.id
+            });
+
+        if (error) {
+            console.error("Could not add like:", error.message);
+            return;
+        }
+    }
+
+    // REFRESH LIKE DISPLAY
+    await loadModalLikes();
+}
+
+// LOAD POPUP LIKES
+async function loadModalLikes() {
+
+    if (!activeModalSpot) return;
+
+    const spotId = activeModalSpot.id;
+
+    // GET ALL LIKES FOR THIS SPOT
+    const { data: likes, error } = await supabaseClient
+        .from("likes")
+        .select("user_id")
+        .eq("spot_id", spotId);
+
+    if (error) {
+        console.error("Could not load popup likes:", error.message);
+        return;
+    }
+
+    // UPDATE LIKE COUNT
+    document.getElementById("modalLikeCount").textContent =
+        likes.length + (likes.length === 1 ? " like" : " likes");
+
+    // CHECK IF CURRENT USER LIKED THIS SPOT
+    const { data: userData } = await supabaseClient.auth.getUser();
+
+    const userLiked = userData.user &&
+        likes.some(like => like.user_id === userData.user.id);
+
+    // UPDATE LIKE BUTTON
+    const likeButton = document.getElementById("modalLikeButton");
+
+    likeButton.textContent = userLiked ? "❤️ Liked" : "🤍 Like";
+}
