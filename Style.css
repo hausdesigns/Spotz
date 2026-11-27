@@ -412,6 +412,8 @@ footer {
 }
 
 
+
+
 /* ==========================
    RESPONSIVE DESIGN
 ========================== */
@@ -460,4 +462,45 @@ footer {
         height: 350px;
     }
 
+}
+
+
+/* CENTER SPOTZ PROFILE */
+
+.profile-section {
+    width: 90%;
+    max-width: 850px;
+    margin: 50px auto;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+/* CENTER PROFILE HEADER */
+
+.profile-header {
+    justify-content: center;
+    max-width: 550px;
+    margin: 0 auto 35px;
+}
+
+/* CENTER PROFILE STATISTICS */
+
+.profile-stats {
+    justify-content: center;
+    max-width: 550px;
+    margin: 0 auto 35px;
+}
+
+/* CENTER MY SPOTS HEADING */
+
+.profile-spots h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* KEEP SPOT GRID CENTERED */
+
+#profileSpots {
+    max-width: 850px;
+    margin: 20px auto;
 }
