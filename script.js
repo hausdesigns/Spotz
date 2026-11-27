@@ -1145,25 +1145,28 @@ async function handleModalComment(event) {
     await loadModalComments();
 }
 
-
 // SET UP SPOT POPUP CLOSE BUTTON
 function setupSpotModal() {
 
     const closeSpotModal = document.getElementById("closeSpotModal");
     const spotModal = document.getElementById("spotModal");
-    // POPUP LIKE BUTTON
-const modalLikeButton = document.getElementById("modalLikeButton");
 
-modalLikeButton.addEventListener("click", handleModalLike);
-
-// POPUP COMMENT FORM
-const modalCommentForm = document.getElementById("modalCommentForm");
-
-modalCommentForm.addEventListener("submit", handleModalComment);
+    const modalLikeButton = document.getElementById("modalLikeButton");
+    const modalCommentForm = document.getElementById("modalCommentForm");
 
     if (!closeSpotModal || !spotModal) {
         console.error("Spot popup HTML elements not found.");
         return;
+    }
+
+    // POPUP LIKE BUTTON
+    if (modalLikeButton) {
+        modalLikeButton.addEventListener("click", handleModalLike);
+    }
+
+    // POPUP COMMENT FORM
+    if (modalCommentForm) {
+        modalCommentForm.addEventListener("submit", handleModalComment);
     }
 
     // CLOSE BUTTON
@@ -1179,6 +1182,7 @@ modalCommentForm.addEventListener("submit", handleModalComment);
         }
     });
 }
+
 
 // WAIT UNTIL HTML IS LOADED
 if (document.readyState === "loading") {
