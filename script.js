@@ -181,14 +181,15 @@ signupForm.addEventListener("submit", async function(event) {
     accountMessage.textContent = "Creating your account...";
 
     const { data, error } = await supabaseClient.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-            data: {
-                username: username
-            }
-        }
-    });
+    email: email,
+    password: password,
+    options: {
+        data: {
+            username: username
+        },
+        emailRedirectTo: "https://hausdesigns.github.io/SpotzLive/"
+    }
+});
 
     if (error) {
         accountMessage.textContent = error.message;
