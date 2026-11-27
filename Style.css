@@ -504,3 +504,27 @@ footer {
     max-width: 850px;
     margin: 20px auto;
 }
+
+
+/* CENTER MY PROFILE HEADING */
+
+.profile-section > h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* CENTER PROFILE IMAGE AND USER INFO */
+
+.profile-header {
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* CENTER PROFILE IMAGE */
+
+#profileAvatar {
+    display: block;
+    margin: 0 auto;
+}
