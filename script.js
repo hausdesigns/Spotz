@@ -794,8 +794,8 @@ document.getElementById("profileForm").addEventListener(
                 .storage
                 .from("profile-photos")
                 .upload(filePath, photoFile, {
-                    upsert: true
-                });
+    upsert: false
+});
 
             if (uploadError) {
                 alert("Photo upload failed: " + uploadError.message);
