@@ -775,6 +775,42 @@ document.getElementById("profileForm").addEventListener(
 
         const bio = document.getElementById("profileBio").value;
 
+
+        // GET PROFILE PHOTO
+        const photoFile =
+            document.getElementById("profilePhoto").files[0];
+
+        let avatarUrl = null;
+
+        // UPLOAD PROFILE PHOTO IF SELECTED
+        if (photoFile) {
+
+            const fileExtension = photoFile.name.split(".").pop();
+
+            const filePath =
+                user.id + "/profile-" + Date.now() + "." + fileExtension;
+
+            const { error: uploadError } = await supabaseClient
+                .storage
+                .from("profile-photos")
+                .upload(filePath, photoFile, {
+                    upsert: true
+                });
+
+            if (uploadError) {
+                alert("Photo upload failed: " + uploadError.message);
+                return;
+            }
+
+            const { data: publicUrlData } = supabaseClient
+                .storage
+                .from("profile-photos")
+                .getPublicUrl(filePath);
+
+            avatarUrl = publicUrlData.publicUrl;
+        }
+
+
         // GET EXISTING USERNAME
         const { data: existingProfile, error: fetchError } =
             await supabaseClient
@@ -800,11 +836,17 @@ document.getElementById("profileForm").addEventListener(
 
         // SAVE PROFILE
         
+const profileUpdate = {
+    bio: bio
+};
+
+if (avatarUrl) {
+    profileUpdate.avatar_url = avatarUrl;
+}
+
 const { error } = await supabaseClient
     .from("profiles")
-    .update({
-        bio: bio
-    })
+    .update(profileUpdate)
     .eq("id", user.id);
 
         if (error) {
