@@ -712,3 +712,87 @@ async function loadSpotz() {
     loadSpotz();
 
 });
+
+
+// =====================================
+// SPOTZ USER PROFILE
+// =====================================
+
+// LOAD USER PROFILE
+async function loadProfile() {
+
+    const { data: userData, error: userError } =
+        await supabaseClient.auth.getUser();
+
+    if (userError || !userData.user) {
+        document.getElementById("profileUsername").textContent =
+            "Please log in to view your profile";
+        return;
+    }
+
+    const user = userData.user;
+
+    const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Could not load profile:", error.message);
+        return;
+    }
+
+    document.getElementById("profileUsername").textContent =
+        profile?.username || user.email;
+
+    document.getElementById("profileBio").value =
+        profile?.bio || "";
+
+    if (profile?.avatar_url) {
+        document.getElementById("profileAvatar").src =
+            profile.avatar_url;
+    }
+}
+
+// SAVE USER PROFILE
+document.getElementById("profileForm").addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+        const { data: userData } =
+            await supabaseClient.auth.getUser();
+
+        if (!userData.user) {
+            alert("Please log in first.");
+            return;
+        }
+
+        const user = userData.user;
+
+        const bio = document.getElementById("profileBio").value;
+
+        const { error } = await supabaseClient
+            .from("profiles")
+            .upsert({
+                id: user.id,
+                bio: bio
+            });
+
+        if (error) {
+            console.error("Profile save error:", error.message);
+            alert("Could not save profile: " + error.message);
+            return;
+        }
+
+        document.getElementById("profileMessage").textContent =
+            "Profile saved successfully!";
+
+        await loadProfile();
+    }
+);
+
+// LOAD PROFILE WHEN PAGE STARTS
+loadProfile();
