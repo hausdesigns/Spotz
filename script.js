@@ -1018,26 +1018,23 @@ activeModalSpot = spot;
     loadModalComments();
 }
 
+
 // LOAD COMMENTS IN SPOT POPUP
 async function loadModalComments() {
 
     if (!activeModalSpot) return;
 
     const spotId = activeModalSpot.id;
-
     const commentsList = document.getElementById("modalCommentsList");
 
     commentsList.textContent = "Loading comments...";
 
-    console.log("Loading comments for Spot:", spotId);
-
+    // GET COMMENTS FOR THIS SPOT
     const { data: comments, error } = await supabaseClient
         .from("comments")
         .select("*")
         .eq("spot_id", spotId)
         .order("created_at", { ascending: true });
-
-    console.log("Comments returned from Supabase:", comments);
 
     if (error) {
         console.error("Could not load popup comments:", error.message);
@@ -1052,13 +1049,45 @@ async function loadModalComments() {
         return;
     }
 
+    // GET USERNAMES AND PROFILE PHOTOS
+    const userIds = [...new Set(comments.map(comment => comment.user_id))];
+
+    const { data: profiles, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("id, username, avatar_url")
+        .in("id", userIds);
+
+    if (profileError) {
+        console.error("Could not load comment profiles:", profileError.message);
+    }
+
+    // MATCH EACH COMMENT TO ITS USER PROFILE
     comments.forEach(function(comment) {
+
+        const profile = profiles?.find(
+            user => user.id === comment.user_id
+        );
 
         const commentItem = document.createElement("div");
         commentItem.className = "modal-comment-item";
 
+        const username = document.createElement("strong");
+        username.textContent = profile?.username || "Spotz Member";
+
         const commentText = document.createElement("p");
         commentText.textContent = comment.content;
+
+        commentItem.appendChild(username);
+
+        // SHOW PROFILE PHOTO IF AVAILABLE
+        if (profile?.avatar_url) {
+            const avatar = document.createElement("img");
+            avatar.src = profile.avatar_url;
+            avatar.alt = "Profile picture";
+            avatar.className = "comment-avatar";
+
+            commentItem.prepend(avatar);
+        }
 
         commentItem.appendChild(commentText);
         commentsList.appendChild(commentItem);
