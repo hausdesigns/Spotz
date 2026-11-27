@@ -1011,18 +1011,37 @@ function openSpotPopup(spot) {
     popup.hidden = false;
 }
 
-// CLOSE SPOT POPUP
-const closeSpotModal = document.getElementById("closeSpotModal");
-const spotModal = document.getElementById("spotModal");
+// SET UP SPOT POPUP CLOSE BUTTON
+function setupSpotModal() {
 
-closeSpotModal.addEventListener("click", function(event) {
-    event.preventDefault();
+    const closeSpotModal = document.getElementById("closeSpotModal");
+    const spotModal = document.getElementById("spotModal");
 
-    console.log("CLOSE BUTTON CLICKED");
+    if (!closeSpotModal || !spotModal) {
+        console.error("Spot popup HTML elements not found.");
+        return;
+    }
 
-    spotModal.style.display = "none";
-    spotModal.hidden = true;
-});
+    // CLOSE BUTTON
+    closeSpotModal.addEventListener("click", function(event) {
+        event.preventDefault();
+        spotModal.hidden = true;
+    });
+
+    // CLICK OUTSIDE TO CLOSE
+    spotModal.addEventListener("click", function(event) {
+        if (event.target === spotModal) {
+            spotModal.hidden = true;
+        }
+    });
+}
+
+// WAIT UNTIL HTML IS LOADED
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupSpotModal);
+} else {
+    setupSpotModal();
+}
 
 // CLOSE WHEN CLICKING OUTSIDE THE POPUP
 spotModal.addEventListener("click", function(event) {
