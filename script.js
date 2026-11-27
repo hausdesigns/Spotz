@@ -1017,6 +1017,10 @@ const spotModal = document.getElementById("spotModal");
 
 closeSpotModal.addEventListener("click", function(event) {
     event.preventDefault();
+
+    console.log("CLOSE BUTTON CLICKED");
+
+    spotModal.style.display = "none";
     spotModal.hidden = true;
 });
 
