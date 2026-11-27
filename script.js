@@ -1015,6 +1015,16 @@ activeModalSpot = spot;
     // SHOW POPUP
     popup.hidden = false;
     loadModalLikes();
+    loadModalComments();
+}
+
+async function loadModalComments() {
+    // Your existing comment-loading code stays here.
+}
+
+// PASTE THE NEW COMMENT FUNCTION HERE
+async function handleModalComment(event) {
+    // New comment submission code goes here.
 }
 
 // SET UP SPOT POPUP CLOSE BUTTON
@@ -1026,6 +1036,11 @@ function setupSpotModal() {
 const modalLikeButton = document.getElementById("modalLikeButton");
 
 modalLikeButton.addEventListener("click", handleModalLike);
+
+// POPUP COMMENT FORM
+const modalCommentForm = document.getElementById("modalCommentForm");
+
+modalCommentForm.addEventListener("submit", handleModalComment);
 
     if (!closeSpotModal || !spotModal) {
         console.error("Spot popup HTML elements not found.");
@@ -1125,6 +1140,50 @@ async function handleModalLike() {
 
 // LOAD POPUP LIKES
 async function loadModalLikes() {
+
+    // LOAD COMMENTS IN SPOT POPUP
+async function loadModalComments() {
+
+    if (!activeModalSpot) return;
+
+    const spotId = activeModalSpot.id;
+
+    const commentsList = document.getElementById("modalCommentsList");
+
+    commentsList.textContent = "Loading comments...";
+
+    const { data: comments, error } = await supabaseClient
+        .from("comments")
+        .select("*")
+        .eq("spot_id", spotId)
+        .order("created_at", { ascending: true });
+
+    if (error) {
+        console.error("Could not load popup comments:", error.message);
+        commentsList.textContent = "Could not load comments.";
+        return;
+    }
+
+    commentsList.replaceChildren();
+
+    if (comments.length === 0) {
+        commentsList.textContent = "No comments yet. Be the first!";
+        return;
+    }
+
+    comments.forEach(function(comment) {
+
+        const commentItem = document.createElement("div");
+        commentItem.className = "modal-comment-item";
+
+        const commentText = document.createElement("p");
+        commentText.textContent = comment.content;
+
+        commentItem.appendChild(commentText);
+        commentsList.appendChild(commentItem);
+
+    });
+}
 
     if (!activeModalSpot) return;
 
