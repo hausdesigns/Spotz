@@ -738,20 +738,20 @@ async function loadSpotz() {
 // SPOTZ USER PROFILE
 // =====================================
 
-// LOAD USER PROFILE
+
+// LOAD USER PROFILE AND THEIR SPOTS
 async function loadProfile() {
 
     const { data: userData, error: userError } =
         await supabaseClient.auth.getUser();
 
     if (userError || !userData.user) {
-        document.getElementById("profileUsername").textContent =
-            "Please log in to view your profile";
         return;
     }
 
     const user = userData.user;
 
+    // GET PROFILE INFORMATION
     const { data: profile, error } = await supabaseClient
         .from("profiles")
         .select("*")
@@ -764,14 +764,102 @@ async function loadProfile() {
     }
 
     document.getElementById("profileUsername").textContent =
-        profile?.username || user.email;
+        profile?.username || user.user_metadata?.username || user.email;
 
     document.getElementById("profileBio").value =
         profile?.bio || "";
 
+    const avatar = document.getElementById("profileAvatar");
+
     if (profile?.avatar_url) {
-        document.getElementById("profileAvatar").src =
-            profile.avatar_url;
+        avatar.src = profile.avatar_url;
+    }
+
+    // GET THIS USER'S SPOTS
+    const { data: spots, error: spotsError } = await supabaseClient
+        .from("spots")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+    if (spotsError) {
+        console.error("Could not load user spots:", spotsError.message);
+        document.getElementById("profileSpots").textContent =
+            "Could not load your spots.";
+        return;
+    }
+
+    // UPDATE SPOT COUNT
+    document.getElementById("profileSpotCount").textContent =
+        spots.length;
+
+    // DISPLAY USER'S SPOTS
+    const spotsContainer = document.getElementById("profileSpots");
+
+    spotsContainer.replaceChildren();
+
+    if (spots.length === 0) {
+        spotsContainer.textContent =
+            "You haven't shared any spots yet.";
+    }
+
+    spots.forEach(function(spot) {
+
+        const spotCard = document.createElement("div");
+        spotCard.className = "profile-spot-card";
+
+        if (spot.photo_url) {
+            const photo = document.createElement("img");
+            photo.src = spot.photo_url;
+            photo.alt = spot.title;
+            photo.style.width = "100%";
+            photo.style.maxWidth = "300px";
+            photo.style.borderRadius = "10px";
+
+            spotCard.appendChild(photo);
+        }
+
+        const title = document.createElement("h4");
+        title.textContent = spot.title;
+        spotCard.appendChild(title);
+
+        const description = document.createElement("p");
+        description.textContent = spot.description || "";
+        spotCard.appendChild(description);
+
+        const location = document.createElement("p");
+        location.textContent = "📍 " + (spot.location_name || "");
+        spotCard.appendChild(location);
+
+        const category = document.createElement("p");
+        category.textContent = spot.category || "";
+        spotCard.appendChild(category);
+
+        spotsContainer.appendChild(spotCard);
+    });
+
+    // COUNT LIKES RECEIVED ON THIS USER'S SPOTS
+    if (spots.length > 0) {
+
+        const spotIds = spots.map(spot => spot.id);
+
+        const { data: likes, error: likesError } =
+            await supabaseClient
+                .from("likes")
+                .select("spot_id")
+                .in("spot_id", spotIds);
+
+        if (likesError) {
+            console.error("Could not load profile likes:", likesError.message);
+            return;
+        }
+
+        document.getElementById("profileLikeCount").textContent =
+            likes.length;
+
+    } else {
+
+        document.getElementById("profileLikeCount").textContent = "0";
     }
 }
 
