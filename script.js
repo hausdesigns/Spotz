@@ -244,21 +244,40 @@ logoutButton.addEventListener("click", async function() {
     updateAccountDisplay(null);
 });
 
+
 // UPDATE ACCOUNT DISPLAY
 function updateAccountDisplay(user) {
+
+    const profileSection = document.getElementById("profile");
+
     if (user) {
+
         signupForm.hidden = true;
         loginForm.hidden = true;
         userAccount.hidden = false;
 
-        const username = user.user_metadata?.username || user.email;
+        const username =
+            user.user_metadata?.username || user.email;
+
         welcomeMessage.textContent = "Welcome, " + username + "!";
+
+        // SHOW PROFILE
+        profileSection.hidden = false;
+
+        // LOAD PROFILE INFORMATION
+        loadProfile();
+
     } else {
+
         signupForm.hidden = false;
         loginForm.hidden = false;
         userAccount.hidden = true;
+
+        // HIDE PROFILE
+        profileSection.hidden = true;
     }
 }
+
 
 // CHECK EXISTING LOGIN SESSION
 async function checkLoginSession() {

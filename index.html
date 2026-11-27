@@ -22,40 +22,43 @@
         Spotz
     </header>
 
-    <nav>
+  
+<nav>
     
-<!-- CITY SEARCH BAR -->
-<form class="location-search" onsubmit="searchCity(event)">
+    <!-- CITY SEARCH BAR -->
+    <form class="location-search" onsubmit="searchCity(event)">
 
-    <input
-        type="text"
-        id="citySearch"
-        placeholder="Search your city..."
-        required
-    >
+        <input
+            type="text"
+            id="citySearch"
+            placeholder="Search your city..."
+            required
+        >
 
-    <!-- SEARCH BUTTON -->
-    <button type="submit" aria-label="Search city">
-        🔍
-    </button>
+        <button type="submit" aria-label="Search city">
+            🔍
+        </button>
 
-    <!-- LOCATION BUTTON -->
-    <button type="button" onclick="findLocation()" aria-label="Find my location">
-        📍
-    </button>
+        <button type="button" onclick="findLocation()" aria-label="Find my location">
+            📍
+        </button>
 
-</form>
+    </form>
 
-<!-- SEARCH RESULTS MESSAGE -->
-<p id="locationResult"></p>
+    <!-- SEARCH RESULTS MESSAGE -->
+    <p id="locationResult"></p>
 
+    <!-- NAVIGATION LINKS -->
     <ul>
         <li><a href="#about">About</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#contact">Contact</a></li>
         <li><a href="spotz">Spotz</a></li>
+        <li><a href="#profile">My Profile</a></li>
     </ul>
+
 </nav>
+
 
 
 <section class="account-section" id="account">
@@ -115,6 +118,86 @@
         <button type="button" id="logoutButton">Log Out</button>
     </div>
 </section>
+
+
+<!-- SPOTZ USER PROFILE -->
+<section class="profile-section" id="profile" hidden>
+
+    <h2>My Profile</h2>
+
+    <!-- PROFILE HEADER -->
+    <div class="profile-header">
+
+        <img
+            id="profileAvatar"
+            src=""
+            alt="Profile picture"
+        >
+
+        <div>
+            <h3 id="profileUsername">Username</h3>
+            <p>Welcome to my Spotz profile!</p>
+        </div>
+
+    </div>
+
+    <!-- EDIT PROFILE FORM -->
+    <form id="profileForm">
+
+        <h3>Edit Your Profile</h3>
+
+        <label for="profileBio">About Me</label>
+
+        <textarea
+            id="profileBio"
+            placeholder="Tell the Spotz community about yourself..."
+            maxlength="300"
+        ></textarea>
+
+        <label for="profilePhoto">Profile Picture</label>
+
+        <input
+            type="file"
+            id="profilePhoto"
+            accept="image/*"
+        >
+
+        <button type="submit">Save Profile</button>
+
+        <p id="profileMessage"></p>
+
+    </form>
+
+    <!-- PROFILE STATISTICS -->
+    <div class="profile-stats">
+
+        <div>
+            <h3 id="profileSpotCount">0</h3>
+            <p>My Spots</p>
+        </div>
+
+        <div>
+            <h3 id="profileLikeCount">0</h3>
+            <p>Likes Received</p>
+        </div>
+
+    </div>
+
+    <!-- USER'S SPOTS -->
+    <div class="profile-spots">
+
+        <h3>My Spots</h3>
+
+        <div id="profileSpots">
+            <p>Your shared places will appear here.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+
 
 
 <!-- CREATE A SPOT -->
