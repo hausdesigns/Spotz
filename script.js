@@ -1145,12 +1145,15 @@ async function loadModalComments() {
 
     commentsList.textContent = "Loading comments...";
 
+    console.log("Loading comments for Spot:", spotId);
+
     const { data: comments, error } = await supabaseClient
         .from("comments")
         .select("*")
         .eq("spot_id", spotId)
         .order("created_at", { ascending: true });
 
+     console.log("Comments returned from Supabase:", comments);   
     if (error) {
         console.error("Could not load popup comments:", error.message);
         commentsList.textContent = "Could not load comments.";
