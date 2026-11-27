@@ -208,6 +208,53 @@
 </main>
 
 
+<!-- ==========================
+     SPOTZ USER PROFILE
+========================== -->
+
+<section class="profile-section" id="profile">
+
+    <h2>My Profile</h2>
+
+    <div class="profile-card">
+
+        <img
+            id="profileAvatar"
+            src="https://placehold.co/150x150?text=Profile"
+            alt="Profile Picture"
+            class="profile-avatar"
+        >
+
+        <h3 id="profileUsername">Your Username</h3>
+
+        <form id="profileForm">
+
+            <label for="profilePhoto">Profile Picture</label>
+            <input
+                type="file"
+                id="profilePhoto"
+                accept="image/*"
+            >
+
+            <label for="profileBio">About Me</label>
+            <textarea
+                id="profileBio"
+                placeholder="Tell everyone a little about yourself..."
+                maxlength="250"
+            ></textarea>
+
+            <button type="submit">Save Profile</button>
+
+        </form>
+
+        <p id="profileMessage"></p>
+
+    </div>
+
+</section>
+
+
+
 
 
 
