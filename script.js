@@ -774,12 +774,37 @@ document.getElementById("profileForm").addEventListener(
 
         const bio = document.getElementById("profileBio").value;
 
-        const { error } = await supabaseClient
-            .from("profiles")
-            .upsert({
-                id: user.id,
-                bio: bio
-            });
+        // GET EXISTING USERNAME
+        const { data: existingProfile, error: fetchError } =
+            await supabaseClient
+                .from("profiles")
+                .select("username")
+                .eq("id", user.id)
+                .maybeSingle();
+
+        if (fetchError) {
+            alert("Could not load username: " + fetchError.message);
+            return;
+        }
+
+        const username =
+            existingProfile?.username ||
+            user.user_metadata?.username ||
+            user.email?.split("@")[0];
+
+        if (!username) {
+            alert("Could not find your username.");
+            return;
+        }
+
+        // SAVE PROFILE
+        
+const { error } = await supabaseClient
+    .from("profiles")
+    .update({
+        bio: bio
+    })
+    .eq("id", user.id);
 
         if (error) {
             console.error("Profile save error:", error.message);
@@ -793,6 +818,7 @@ document.getElementById("profileForm").addEventListener(
         await loadProfile();
     }
 );
+
 
 // LOAD PROFILE WHEN PAGE STARTS
 loadProfile();
