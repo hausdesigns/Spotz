@@ -1068,13 +1068,6 @@ if (document.readyState === "loading") {
     setupSpotModal();
 }
 
-// CLOSE WHEN CLICKING OUTSIDE THE POPUP
-spotModal.addEventListener("click", function(event) {
-    if (event.target === spotModal) {
-        spotModal.hidden = true;
-    }
-});
-
 // POPUP LIKE BUTTON
 async function handleModalLike() {
 
